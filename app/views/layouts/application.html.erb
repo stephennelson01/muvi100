@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>muvi100</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-neutral-900 text-neutral-100">
+    <!-- Sticky header -->
+    <header class="sticky top-0 z-40 bg-neutral-900/85 backdrop-blur border-b border-neutral-800">
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="h-14 flex items-center justify-between gap-3">
+          <%= link_to "muvi100", root_path, class: "font-semibold text-white tracking-wide" %>
+
+          <!-- Nav tabs -->
+          <nav class="hidden md:flex items-center gap-1">
+            <%= nav_link_to "Home", root_path %>
+            <%= nav_link_to "Trending", trending_path %>
+            <%= nav_link_to "Movies", movies_path %>
+            <%= nav_link_to "TV Series", tv_index_path %>
+            <%= nav_link_to "Genres", genres_path %>
+            <%= nav_link_to "Anime", anime_path %>
+          </nav>
+
+          <!-- Search -->
+          <%= form_with url: search_path, method: :get, class: "flex-1 md:flex-none" do %>
+            <input name="q" placeholder="Search movies & TV…" class="w-full md:w-64 bg-neutral-800 text-neutral-100 placeholder-neutral-400 px-3 py-2 rounded-md border border-neutral-700 focus:outline-none focus:ring-1 focus:ring-white/40" />
+          <% end %>
+
+          <!-- Auth -->
+          <div class="hidden sm:flex items-center gap-2">
+            <% if user_signed_in? %>
+              <%= link_to "Bookmarks", bookmarks_path, class: "text-sm text-neutral-200 hover:text-white" %>
+              <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "text-sm text-neutral-200 hover:text-white" %>
+            <% else %>
+              <%= link_to "Sign in", new_user_session_path, class: "text-sm text-neutral-200 hover:text-white" %>
+              <%= link_to "Google", user_google_oauth2_omniauth_authorize_path, class: "text-sm bg-white text-neutral-900 px-3 py-1.5 rounded-md font-medium hover:bg-neutral-100" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="py-6">
+      <div class="max-w-7xl mx-auto px-4">
+        <%= render "shared/flash" %>
+        <%= yield %>
+      </div>
+    </main>
+
+    <!-- Back to top -->
+    <button data-controller="back-to-top"
+            data-action="click->back-to-top#scroll"
+            class="fixed bottom-5 right-5 h-11 w-11 rounded-full bg-blue-600 text-white shadow-lg hidden"
+            data-back-to-top-target="button">↑</button>
+
+    <footer class="border-t border-neutral-800 py-6 text-center text-sm text-neutral-400">
+      © <%= Time.current.year %> muvi100
+    </footer>
+  </body>
+</html>

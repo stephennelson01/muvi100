@@ -1,0 +1,2 @@
+class MediaCache < ApplicationRecord
+end
