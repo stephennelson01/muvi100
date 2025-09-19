@@ -1,6 +1,8 @@
 @import "tailwindcss";
+
+/* Tell Tailwind where to scan for classes (v4 uses @source) */
 @source "../views";
 @source "../javascript";
 @source "../helpers";
 
-/* (optional) your custom CSS here */
+/* your custom CSS here if needed */

@@ -1,4 +1,2 @@
-<h1 class="text-2xl font-bold mb-5 text-white">Popular TV</h1>
-<% @page = (params[:page] || 1).to_i %>
-<% @results = Tmdb.get("/tv/popular", page: @page)["results"] %>
+<h1 class="text-2xl font-bold mb-5 text-white">Popular TV Shows</h1>
 <%= render "shared/grid", collection: @results %>

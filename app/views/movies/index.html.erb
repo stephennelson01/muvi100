@@ -1,4 +1,2 @@
 <h1 class="text-2xl font-bold mb-5 text-white">Popular Movies</h1>
-<% @page = (params[:page] || 1).to_i %>
-<% @results = Tmdb.get("/movie/popular", page: @page)["results"] %>
 <%= render "shared/grid", collection: @results %>

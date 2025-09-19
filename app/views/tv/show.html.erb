@@ -1,4 +1,20 @@
-<div>
-  <h1 class="font-bold text-4xl">Tv#show</h1>
-  <p>Find me in app/views/tv/show.html.erb</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div>
+    <% if @show["poster_path"] %>
+      <img src="https://image.tmdb.org/t/p/w500<%= @show["poster_path"] %>"
+           class="rounded-lg shadow">
+    <% end %>
+  </div>
+  <div class="md:col-span-2">
+    <h1 class="text-3xl font-bold mb-2"><%= @show["name"] %></h1>
+    <p class="text-neutral-400 mb-4">First air: <%= @show["first_air_date"]&.first(4) %> • Seasons: <%= @show["number_of_seasons"] %></p>
+    <p class="mb-4"><%= @show["overview"] %></p>
+
+    <% if @trailer %>
+      <h2 class="text-xl font-semibold mb-2">Trailer</h2>
+      <iframe class="w-full aspect-video rounded-lg"
+              src="https://www.youtube.com/embed/<%= @trailer["key"] %>"
+              allowfullscreen></iframe>
+    <% end %>
+  </div>
 </div>

@@ -1,8 +1,18 @@
 <h1 class="text-2xl font-bold mb-4 text-white">Genres</h1>
+
 <div class="flex flex-wrap gap-2 mb-5">
-  <% @genres.each do |id,name| %>
-    <% active = @selected.split(",").include?(id.to_s) %>
-    <%= link_to name, genres_path(with_genres: id), class: "px-3 py-1.5 rounded-md border #{active ? "bg-white text-neutral-900 border-neutral-700" : "border-neutral-700 text-neutral-200 hover:bg-neutral-800"}" %>
+  <% selected_ids = @selected.to_s.split(",") %>
+  <% @genres.each do |genre| %>
+    <% id = genre["id"]; name = genre["name"] %>
+    <% active = selected_ids.include?(id.to_s) %>
+    <%= link_to name,
+        genres_path(with_genres: id),
+        class: "px-3 py-1.5 rounded-md border #{active ? "bg-white text-neutral-900 border-neutral-700" : "border-neutral-700 text-neutral-200 hover:bg-neutral-800"}" %>
   <% end %>
 </div>
-<%= render "shared/grid", collection: @results %>
+
+<% if @results.present? %>
+  <%= render "shared/grid", collection: @results %>
+<% else %>
+  <p class="text-neutral-400">Pick a genre to see results.</p>
+<% end %>

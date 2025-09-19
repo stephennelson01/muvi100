@@ -1,0 +1,141 @@
+/* ===== Navbar / Brand ===== */
+.navbar {
+  position: sticky; top: 0; z-index: 40;
+  backdrop-filter: blur(8px);
+  background: rgba(23,23,23,0.8);           /* neutral-900/80 */
+  border-bottom: 1px solid #262626;         /* neutral-800 */
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.brand {
+  display: inline-flex; align-items: center; gap: .5rem;
+  color: #fff; text-decoration: none;
+}
+.brand-badge {
+  display: grid; place-items: center;
+  width: 36px; height: 36px; border-radius: 12px;
+  background: linear-gradient(135deg,#ef4444,#f59e0b); /* red->amber */
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1) inset;
+  font-weight: 900;
+}
+.brand-text {
+  font-weight: 800; letter-spacing: .02em; font-size: 1.125rem; line-height: 1;
+}
+.brand-100 {
+  background: linear-gradient(90deg,#ef4444,#fbbf24);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+}
+
+/* ===== Nav tabs ===== */
+.nav-tabs { display: none; gap: .25rem; }
+@media (min-width: 768px) { .nav-tabs { display: flex; } }
+
+.nav-tab {
+  display: inline-block; padding: .5rem .75rem; border-radius: .5rem;
+  font-size: .875rem; text-decoration: none;
+  color: #e5e5e5; transition: background .15s,color .15s;
+}
+.nav-tab:hover { background: rgba(255,255,255,.05); color: #fff; }
+.nav-tab--active { background: rgba(255,255,255,.10); color: #fff; }
+
+/* ===== Search ===== */
+.nav-search { display: none; }
+@media (min-width: 640px) { .nav-search { display: block; } }
+.nav-input {
+  width: 16rem; background: #262626; color: #f5f5f5;
+  border: 1px solid #404040; border-radius: .5rem;
+  padding: .5rem .75rem; outline: none;
+}
+.nav-input::placeholder { color: #a3a3a3; }
+
+/* ===== Auth buttons ===== */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:.375rem .75rem; border-radius:.5rem; font-weight:600;
+  text-decoration:none; border:0; cursor:pointer; font-size:.875rem;
+}
+.btn-grey { background:#3f3f46; color:#fff; }
+.btn-grey:hover { background:#52525b; }
+.btn-red  { background:#dc2626; color:#fff; }
+.btn-red:hover { background:#ef4444; }
+
+/* HERO container */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: .75rem;
+  border: 1px solid #262626;
+}
+.hero::before {
+  content: "";
+  display: block;
+  padding-top: 37.5%; /* aspect ratio */
+}
+
+/* Slides */
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity .5s linear;
+  background-size: cover;
+  background-position: center;
+}
+.hero-slide::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Brighter gradient (less dark) */
+  background: linear-gradient(to top,
+    rgba(23, 23, 23, 0.7),   /* bottom */
+    rgba(23, 23, 23, 0.25) 60%, /* mid */
+    rgba(23, 23, 23, 0));   /* top */
+  pointer-events: none; /* ✅ fixes click-blocking */
+}
+
+/* Caption */
+.hero-caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: end;
+  padding: 0 1.5rem 2.5rem;
+  max-width: 80rem;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  z-index: 10; /* ensure above gradient */
+}
+
+/* Fade animation */
+@keyframes heroFade {
+  0% { opacity: 0 }
+  5% { opacity: 1 }
+  20% { opacity: 1 }
+  25% { opacity: 0 }
+  100% { opacity: 0 }
+}
+.hero .hero-slide:nth-child(1) { animation: heroFade 30s infinite; animation-delay: 0s }
+.hero .hero-slide:nth-child(2) { animation: heroFade 30s infinite; animation-delay: 5s }
+.hero .hero-slide:nth-child(3) { animation: heroFade 30s infinite; animation-delay: 10s }
+.hero .hero-slide:nth-child(4) { animation: heroFade 30s infinite; animation-delay: 15s }
+.hero .hero-slide:nth-child(5) { animation: heroFade 30s infinite; animation-delay: 20s }
+.hero .hero-slide:nth-child(6) { animation: heroFade 30s infinite; animation-delay: 25s }
+
+/* Dots */
+.hero-dots {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: .75rem;
+  display: flex;
+  gap: .5rem;
+  z-index: 20;
+}
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: rgba(255,255,255,.5);
+}

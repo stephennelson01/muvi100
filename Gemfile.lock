@@ -360,7 +360,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   omniauth
-  omniauth-google-oauth2
+  omniauth-google-oauth2 (~> 1.2)
   pg (~> 1.1)
   puma (>= 5.0)
   rack-cors

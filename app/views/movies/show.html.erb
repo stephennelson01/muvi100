@@ -1,4 +1,48 @@
-<div>
-  <h1 class="font-bold text-4xl">Movies#show</h1>
-  <p>Find me in app/views/movies/show.html.erb</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- Poster -->
+  <div>
+    <% if @movie["poster_path"] %>
+      <img src="https://image.tmdb.org/t/p/w500<%= @movie["poster_path"] %>"
+           alt="<%= @movie["title"] %>"
+           class="rounded-lg shadow">
+    <% end %>
+  </div>
+
+  <!-- Details -->
+  <div class="md:col-span-2">
+    <h1 class="text-3xl font-bold mb-2"><%= @movie["title"] %></h1>
+    <p class="text-neutral-400 mb-4">
+      <%= @movie["release_date"]&.first(4) %> • <%= @movie["runtime"] %> min
+    </p>
+    <p class="mb-4"><%= @movie["overview"] %></p>
+
+    <!-- Trailer -->
+    <% if @trailer %>
+      <h2 class="text-xl font-semibold mb-2">Trailer</h2>
+      <iframe class="w-full aspect-video rounded-lg"
+              src="https://www.youtube.com/embed/<%= @trailer["key"] %>"
+              allowfullscreen></iframe>
+    <% end %>
+
+    <!-- Streaming Providers -->
+    <% if @providers.present? && @providers.any? %>
+      <h2 class="text-xl font-semibold mt-6 mb-3">Available On</h2>
+      <div class="flex flex-wrap gap-4">
+        <% @providers.each do |p| %>
+          <div class="flex flex-col items-center w-16 text-center">
+            <% if p["logo_path"] %>
+              <img src="https://image.tmdb.org/t/p/w92<%= p["logo_path"] %>"
+                   alt="<%= p["provider_name"] %>"
+                   class="rounded mb-1">
+            <% end %>
+            <span class="text-xs text-neutral-300"><%= p["provider_name"] %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-neutral-400 mt-4">
+        No streaming providers available for this title in your region.
+      </p>
+    <% end %>
+  </div>
 </div>

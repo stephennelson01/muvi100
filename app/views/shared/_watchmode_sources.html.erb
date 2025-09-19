@@ -1,0 +1,29 @@
+<%# locals: sources (Array<Hash>) %>
+<h2 class="text-xl font-bold mt-6 mb-3">Where to Watch</h2>
+
+<% if Array(sources).any? %>
+  <ul class="space-y-2">
+    <% sources.each do |src| %>
+      <li>
+        <a href="<%= src["web_url"] %>" target="_blank"
+           class="inline-flex items-center gap-2 text-blue-400 hover:underline">
+          <span class="font-medium">Watch on <%= src["name"] %></span>
+          <%# Some responses include a logo_url; show it if present %>
+          <% if src["logo_url"].present? %>
+            <img src="<%= src["logo_url"] %>" alt="<%= src["name"] %>" class="h-5" />
+          <% end %>
+          <%# Optional: show price/type region if present %>
+          <% badges = [] %>
+          <% badges << src["type"]        if src["type"].present? %>
+          <% badges << src["region"]      if src["region"].present? %>
+          <% badges << src["price"].to_s  if src["price"].present? %>
+          <% if badges.any? %>
+            <span class="text-xs text-neutral-400">(<%= badges.join(" • ") %>)</span>
+          <% end %>
+        </a>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="text-neutral-400">No streaming sources available for this title.</p>
+<% end %>

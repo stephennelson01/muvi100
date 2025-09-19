@@ -19,6 +19,16 @@ Devise.setup do |config|
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
   # config.secret_key = '37bbb554c9654f2b2942f12050819cb163497c89686b3806bf01066db28d8c51e8ddff1d7c6c3eda68d372202648d4af97fa201ca6b012298324df528876fde2'
+config.omniauth :google_oauth2,
+  ENV.fetch("GOOGLE_CLIENT_ID"),
+  ENV.fetch("GOOGLE_CLIENT_SECRET"),
+  scope: "email,profile",
+  prompt: "select_account",
+  image_aspect_ratio: "square",
+  image_size: 100
+
+# Allow GET for dev convenience (OmniAuth v2 defaults to POST-only)
+OmniAuth.config.allowed_request_methods = [:post, :get]
 
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
