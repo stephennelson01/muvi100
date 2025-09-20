@@ -1,30 +1,27 @@
+// app/javascript/controllers/modal_controller.js
 import { Controller } from "@hotwired/stimulus"
 
-// Handles opening/closing and swapping modal content
 export default class extends Controller {
-  static targets = ["overlay", "frame", "title"]
+  static targets = ["container", "signInFrame", "signUpFrame", "signInTab", "signUpTab"]
 
-  static values = { content: String }
+  openSignIn() { this.show("signIn") }
+  openSignUp() { this.show("signUp") }
+  showSignIn() { this.show("signIn") }
+  showSignUp() { this.show("signUp") }
 
-  open(event) {
-    event.preventDefault()
-    this.overlayTarget.classList.remove("hidden")
-    this.swap()
+  close() {
+    if (this.hasContainerTarget) this.containerTarget.classList.add("hidden")
   }
 
-  close(event) {
-    event.preventDefault()
-    this.overlayTarget.classList.add("hidden")
-  }
+  show(which) {
+    if (!this.hasContainerTarget) return
+    this.containerTarget.classList.remove("hidden")
 
-  swap(event) {
-    let type = event?.target?.dataset?.modalContentValue || this.contentValue || "signup"
-    if (type === "signin") {
-      this.titleTarget.innerText = "Sign In"
-      this.frameTarget.src = "/users/sign_in"
-    } else {
-      this.titleTarget.innerText = "Sign Up"
-      this.frameTarget.src = "/users/sign_up"
-    }
+    const isIn = which === "signIn"
+    if (this.hasSignInFrameTarget) this.signInFrameTarget.classList.toggle("hidden", !isIn)
+    if (this.hasSignUpFrameTarget) this.signUpFrameTarget.classList.toggle("hidden", isIn)
+
+    if (this.hasSignInTabTarget) this.signInTabTarget.classList.toggle("text-white", isIn)
+    if (this.hasSignUpTabTarget) this.signUpTabTarget.classList.toggle("text-white", !isIn)
   }
 }

@@ -1,48 +1,131 @@
+<%# ---- helpers (inline) ---- %>
+<% minutes_to_hm = ->(mins) {
+  m = mins.to_i
+  m <= 0 ? nil : (m/60 > 0 ? "#{m/60}h #{m%60}m" : "#{m}m")
+} %>
+
+<% country_flag = ->(code) {
+  c = code.to_s.upcase
+  (c.length == 2) ? c.chars.map { |ch| (0x1F1E6 - 65 + ch.ord).chr(Encoding::UTF_8) }.join : ""
+} %>
+
+<% normalize = ->(name) { WatchmodeService.normalize(name) } %>
+
+<% title   = @movie&.[]("title").to_s %>
+<% year    = @movie&.[]("release_date").to_s.first(4) %>
+<% runtime = minutes_to_hm.call(@movie&.[]("runtime")) %>
+<% lang    = @movie&.[]("original_language").to_s.upcase.presence %>
+<% country = Array(@movie&.dig("production_countries")).first&.dig("iso_3166_1") %>
+<% rating  = @movie&.[]("vote_average").to_f %>
+<% votes   = @movie&.[]("vote_count").to_i %>
+
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
   <!-- Poster -->
   <div>
-    <% if @movie["poster_path"] %>
+    <% if @movie&.[]("poster_path").present? %>
       <img src="https://image.tmdb.org/t/p/w500<%= @movie["poster_path"] %>"
-           alt="<%= @movie["title"] %>"
-           class="rounded-lg shadow">
+           alt="<%= title %>" class="rounded-lg shadow">
     <% end %>
   </div>
 
   <!-- Details -->
   <div class="md:col-span-2">
-    <h1 class="text-3xl font-bold mb-2"><%= @movie["title"] %></h1>
-    <p class="text-neutral-400 mb-4">
-      <%= @movie["release_date"]&.first(4) %> • <%= @movie["runtime"] %> min
-    </p>
-    <p class="mb-4"><%= @movie["overview"] %></p>
+    <h1 class="text-3xl font-extrabold mb-2"><%= title.presence || "Movie" %></h1>
 
-    <!-- Trailer -->
-    <% if @trailer %>
-      <h2 class="text-xl font-semibold mb-2">Trailer</h2>
-      <iframe class="w-full aspect-video rounded-lg"
-              src="https://www.youtube.com/embed/<%= @trailer["key"] %>"
-              allowfullscreen></iframe>
+    <div class="space-y-1 text-neutral-300 mb-4">
+      <% if @movie&.[]("release_date").present? %>
+        <div><span class="font-semibold">Release Date:</span> <%= @movie["release_date"] %></div>
+      <% end %>
+      <% if lang.present? %>
+        <div><span class="font-semibold">Language:</span> <%= lang %></div>
+      <% end %>
+      <% if country.present? %>
+        <div><span class="font-semibold">Country:</span> <%= country_flag.call(country) %> <%= country %></div>
+      <% end %>
+      <div>
+        <span class="font-semibold">Rating:</span>
+        <span class="inline-flex items-center gap-1">
+          ⭐ <%= sprintf('%.1f', rating) %> / 10
+          <% if votes > 0 %>
+            <span class="text-neutral-500">( <%= number_with_delimiter(votes) %> votes )</span>
+          <% end %>
+        </span>
+      </div>
+      <% if runtime.present? %>
+        <div><span class="font-semibold">Runtime:</span> <%= runtime %></div>
+      <% end %>
+    </div>
+
+    <p class="mb-6 text-neutral-200"><%= @movie&.[]("overview").to_s %></p>
+
+    <% if @primary_watch_url.present? %>
+      <div class="mb-10">
+        <%= link_to "▶ Watch Movie",
+            @primary_watch_url,
+            target: "_blank",
+            rel: "noopener",
+            class: "inline-flex items-center gap-1 px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs font-medium" %>
+      </div>
     <% end %>
 
-    <!-- Streaming Providers -->
-    <% if @providers.present? && @providers.any? %>
-      <h2 class="text-xl font-semibold mt-6 mb-3">Available On</h2>
+    <% if @trailer %>
+      <h2 class="text-xl font-bold mb-3 mt-10">Watch Trailer</h2>
+      <div class="rounded-lg overflow-hidden border border-neutral-800 mb-6">
+        <iframe class="w-full aspect-video"
+                src="https://www.youtube.com/embed/<%= @trailer["key"] %>"
+                title="Trailer" allowfullscreen></iframe>
+      </div>
+    <% end %>
+
+    <h2 class="text-xl font-bold mt-6 mb-3">Where to Watch</h2>
+    <% if @providers.present? %>
       <div class="flex flex-wrap gap-4">
         <% @providers.each do |p| %>
-          <div class="flex flex-col items-center w-16 text-center">
-            <% if p["logo_path"] %>
+          <% name = p["provider_name"] %>
+          <% norm = normalize.call(name) %>
+          <% href = @source_urls[norm] %>
+
+          <div class="w-24 shrink-0 text-center">
+            <% if p["logo_path"].present? %>
               <img src="https://image.tmdb.org/t/p/w92<%= p["logo_path"] %>"
-                   alt="<%= p["provider_name"] %>"
-                   class="rounded mb-1">
+                   alt="<%= name %>" class="rounded mb-2 mx-auto">
             <% end %>
-            <span class="text-xs text-neutral-300"><%= p["provider_name"] %></span>
+            <div class="text-xs text-neutral-300 mb-2 line-clamp-2"><%= name %></div>
+
+            <% if href.present? %>
+              <%= link_to "Watch",
+                  href, target: "_blank", rel: "noopener",
+                  class: "inline-block text-xs px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700" %>
+            <% else %>
+              <span class="inline-block text-xs px-2 py-1 rounded border border-neutral-700 text-neutral-400">No link</span>
+            <% end %>
           </div>
         <% end %>
       </div>
     <% else %>
-      <p class="text-neutral-400 mt-4">
-        No streaming providers available for this title in your region.
-      </p>
+      <p class="text-neutral-400">No streaming sources available for your region.</p>
+    <% end %>
+
+    <% if @cast.present? %>
+      <h2 class="text-xl font-bold mt-8 mb-3">Cast</h2>
+      <div class="flex gap-4 overflow-x-auto pb-2">
+        <% @cast.each do |c| %>
+          <div class="w-28 shrink-0 text-center">
+            <div class="w-24 h-24 mx-auto rounded-full overflow-hidden bg-neutral-800 ring-1 ring-white/10">
+              <% if c["profile_path"].present? %>
+                <img src="https://image.tmdb.org/t/p/w185<%= c["profile_path"] %>"
+                     alt="<%= c["name"] %>" class="w-full h-full object-cover">
+              <% else %>
+                <div class="w-full h-full grid place-items-center text-xs text-neutral-500">No Photo</div>
+              <% end %>
+            </div>
+            <div class="mt-2 text-sm font-medium"><%= c["name"] %></div>
+            <% if c["character"].present? %>
+              <div class="text-xs text-neutral-400"><%= c["character"] %></div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </div>

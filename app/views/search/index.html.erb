@@ -1,4 +1,14 @@
-<div>
-  <h1 class="font-bold text-4xl">Search#index</h1>
-  <p>Find me in app/views/search/index.html.erb</p>
-</div>
+<% q = params[:q].to_s.strip %>
+
+<h1 class="text-2xl font-bold mb-6">
+  Search Results
+  <% if q.present? %>
+    for "<%= q %>"
+  <% end %>
+</h1>
+
+<% if @results.present? %>
+  <%= render "shared/grid", collection: @results %>
+<% else %>
+  <p class="text-neutral-400">No results found.</p>
+<% end %>

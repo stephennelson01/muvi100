@@ -16,42 +16,30 @@
 
   <body class="bg-neutral-900 text-neutral-100">
     <!-- Header -->
-    <header class="sticky top-0 z-40 bg-neutral-900/80 backdrop-blur-md border-b border-neutral-800 shadow-[0_1px_0_0_rgba(255,255,255,0.04)]">
+    <header class="navbar">
       <div class="max-w-7xl mx-auto px-4">
         <div class="h-14 flex items-center justify-between gap-3">
           <!-- Brand -->
-          <%= link_to root_path, class: "flex items-center gap-2 group", "aria-label": "muvi100 home" do %>
-            <!-- Monogram -->
-            <span class="inline-grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-amber-400 ring-1 ring-white/10">
-              <span class="font-black text-white tracking-tight">M</span>
-            </span>
-            <!-- Wordmark -->
-            <span class="font-extrabold tracking-wide text-white text-lg leading-none">
-              MUVI
-              <span class="bg-gradient-to-r from-red-500 to-amber-300 bg-clip-text text-transparent">100</span>
+          <%= link_to root_path, class: "brand", "aria-label": "muvi100 home" do %>
+            <span class="brand-badge">M</span>
+            <span class="brand-text">
+              MUVI <span class="brand-100">100</span>
             </span>
           <% end %>
 
           <!-- Tabs -->
-          <nav class="hidden md:flex items-center gap-1">
-            <% tabs = [
-              ["Home",      root_path],
-              ["Trending",  trending_path],
-              ["Movies",    movies_path],
-              ["TV Series", tv_index_path],
-              ["Genres",    genres_path],
-              ["Anime",     anime_path]
-            ] %>
-            <% tabs.each do |label, path| %>
-              <%= link_to label, path,
-                  class: "px-3 py-2 rounded-md text-sm font-medium transition #{ current_page?(path) ? 'bg-white/10 text-white' : 'text-neutral-200 hover:text-white hover:bg-white/5' }" %>
-            <% end %>
+          <nav class="nav-tabs">
+            <%= nav_link_to "Home",      root_path %>
+            <%= nav_link_to "Trending",  trending_path %>
+            <%= nav_link_to "Movies",    movies_path %>
+            <%= nav_link_to "TV Series", tv_index_path %>
+            <%= nav_link_to "Genres",    genres_path %>
+            <%= nav_link_to "Anime",     anime_path %>
           </nav>
 
           <!-- Search -->
-          <%= form_with url: search_path, method: :get, class: "hidden sm:block" do %>
-            <input name="q" placeholder="Search movies & TV…"
-                   class="w-64 bg-neutral-800 text-neutral-100 placeholder-neutral-400 px-3 py-2 rounded-md border border-neutral-700 focus:outline-none focus:ring-1 focus:ring-white/40" />
+          <%= form_with url: search_path, method: :get, class: "nav-search" do %>
+            <input name="q" placeholder="Search movies & TV…" class="nav-input" />
           <% end %>
 
           <!-- Auth -->
@@ -59,17 +47,15 @@
             <% if user_signed_in? %>
               <!-- White Bookmarks button -->
               <%= link_to "Bookmarks", bookmarks_path,
-                    class: "text-sm bg-white text-neutral-900 px-3 py-1.5 rounded-md font-medium hover:bg-neutral-100" %>
+                    class: "btn btn-white" %>
 
               <!-- Red Sign out button -->
               <%= button_to "Sign out", destroy_user_session_path,
-                    method: :delete,
-                    class: "text-sm bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-md font-medium" %>
+                    method: :delete, form: { data: { turbo: false } },
+                    class: "btn btn-red" %>
             <% else %>
-              <%= link_to "Sign In", new_user_session_path,
-                    class: "text-sm bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md font-medium" %>
-              <%= link_to "Sign Up", new_user_registration_path,
-                    class: "text-sm bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-md font-medium" %>
+              <%= link_to "Sign In", new_user_session_path,    class: "btn btn-grey" %>
+              <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-red"  %>
             <% end %>
           </div>
         </div>

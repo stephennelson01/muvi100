@@ -1,21 +1,53 @@
 class MoviesController < ApplicationController
   def index
-    @movies = Tmdb.get("/movie/popular")["results"] || []
+    @results = Tmdb.get("/discover/movie", sort_by: "popularity.desc")["results"]
   end
 
   def show
-    movie_id = params[:id]
+    @movie = fetch_movie(params[:id])
 
-    # Movie details
-    @movie = Tmdb.get("/movie/#{movie_id}")
+    # If TMDB didn’t return a movie, bail out with a friendly message
+    unless @movie.present? && !@movie.is_a?(Hash) || @movie["id"].present?
+      redirect_to movies_path, alert: "Sorry, that movie could not be found."
+      return
+    end
 
-    # Trailer (grab first YouTube video if present)
-    videos = Tmdb.get("/movie/#{movie_id}/videos")["results"] || []
-    @trailer = videos.find { |v| v["site"] == "YouTube" && v["type"] == "Trailer" }
+    # Trailer
+    vids     = Array(@movie.dig("videos", "results"))
+    @trailer = vids.find { |v| v["site"] == "YouTube" && v["type"].to_s.downcase.include?("trailer") }
 
-    # Providers (logos like Netflix, Prime, Disney+)
-    providers = Tmdb.get("/movie/#{movie_id}/watch/providers")["results"] || {}
-    region = "US" # adjust based on your audience
-    @providers = providers[region].try(:[], "flatrate") || []
+    # Cast
+    @cast = Array(@movie.dig("credits", "cast")).first(12)
+
+    # Providers from TMDB (for logos)
+    @country_code = params[:cc].presence || "US"
+    prov = (@movie.dig("watch/providers", "results") || {})[@country_code] || {}
+    @providers = []
+    %w[flatrate rent buy free ads].each { |kind| @providers.concat(Array(prov[kind])) if prov[kind].present? }
+
+    # Direct source URLs from Watchmode
+    year = @movie["release_date"].to_s.first(4)
+    @source_urls = WatchmodeService.source_url_map(
+      title: @movie["title"], year: year, region: @country_code, types: "movie"
+    )
+
+    # Pick a primary watch URL (Netflix/Prime/etc) or fall back to JustWatch search
+    priority = %w[netflix prime video disney+ hulu max peacock paramount+ apple tv+ crunchyroll]
+    @primary_watch_url =
+      priority.map { |p| @source_urls[p] }.compact.first ||
+      justwatch_fallback(@movie["title"], @country_code)
+  end
+
+  private
+
+  def fetch_movie(id)
+    Tmdb.get("/movie/#{id}", append_to_response: "videos,credits,watch/providers")
+  rescue StandardError
+    nil
+  end
+
+  # Fallback if Watchmode has nothing
+  def justwatch_fallback(title, country)
+    "https://www.justwatch.com/#{country.downcase}/search?q=#{ERB::Util.url_encode(title.to_s)}"
   end
 end

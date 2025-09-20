@@ -1,0 +1,16 @@
+<turbo-stream action="append" target="grid">
+  <template>
+    <% Array(@results).each do |item| %>
+      <%= render "shared/media_card", item: item, current_user: current_user %>
+    <% end %>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="replace" target="grid">
+  <template>
+    <%= render "shared/grid",
+          collection: [], # grid’s items are already in DOM; we keep structure
+          next_url: (@has_more ? url_for(params.permit!.to_h.merge(page: @page + 1)) : nil),
+          page_id: "grid" %>
+  </template>
+</turbo-stream>

@@ -1,30 +1,45 @@
-<% media_type = item["media_type"] || (item["first_air_date"].present? ? "tv" : "movie") %>
-<% id        = item["id"] %>
-<% title     = item["title"] || item["name"] %>
-<% poster    = item["poster_path"] %>
-<% overview  = item["overview"] %>
-<% year_str  = (item["release_date"] || item["first_air_date"]).to_s[0,4] %>
-<% rating    = item["vote_average"].to_f.round(1) rescue nil %>
+<%# expects: item, and optional :current_user %>
+<% title = item["title"] || item["name"] %>
+<% poster = item["poster_path"] %>
+<% vote   = item["vote_average"] %>
+<% is_tv  = item["media_type"] == "tv" || item["first_air_date"].present? %>
 
-<div class="group relative rounded-xl bg-neutral-800 border border-neutral-700 overflow-hidden shadow-sm hover:shadow-xl hover:border-neutral-600 transition-all">
-  <%= link_to (media_type == "movie" ? movie_path(id) : tv_path(id)), class: "block" do %>
-    <div class="relative">
-      <% if poster.present? %>
-        <img class="w-full aspect-[2/3] object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-             src="https://image.tmdb.org/t/p/w500<%= poster %>" alt="<%= title %>">
-      <% else %>
-        <div class="w-full aspect-[2/3] bg-neutral-700"></div>
-      <% end %>
-      <% if rating && rating > 0 %>
-        <div class="absolute top-2 left-2 z-10 px-2 py-1 text-xs font-semibold rounded-md bg-amber-500/90 text-black shadow">
-          ⭐ <%= rating %>
-        </div>
-      <% end %>
-    </div>
-    <div class="p-3">
-      <h3 class="font-semibold leading-snug text-white line-clamp-1"><%= title %></h3>
-      <p class="text-sm text-neutral-400"><%= year_str.presence || "—" %> • <%= media_type.upcase %></p>
-      <p class="mt-2 text-sm text-neutral-300 line-clamp-2"><%= overview %></p>
+<% path = is_tv ? tv_path(item["id"]) : movie_path(item["id"]) %>
+
+<div class="group relative">
+  <%= link_to path, class: "block rounded-lg overflow-hidden" do %>
+    <% if poster.present? %>
+      <img src="https://image.tmdb.org/t/p/w342<%= poster %>"
+           alt="<%= title %>"
+           class="w-full h-56 object-cover transition-transform duration-200 group-hover:scale-105">
+    <% else %>
+      <div class="w-full h-56 bg-neutral-800"></div>
+    <% end %>
+  <% end %>
+
+  <% if vote.present? %>
+    <div class="absolute bottom-2 left-2 bg-black/70 text-xs text-white px-2 py-1 rounded">
+      ⭐ <%= sprintf('%.1f', vote) %>
     </div>
   <% end %>
+
+  <!-- Bookmark toggle (inline) -->
+  <% if current_user %>
+    <% bm = current_user.bookmark_for(item["id"]) %>
+    <div class="absolute top-2 right-2">
+      <% if bm %>
+        <%= button_to "★", bookmark_path(bm),
+              method: :delete,
+              class: "text-white text-xl leading-none hover:text-red-500 bg-black/50 rounded px-1" %>
+      <% else %>
+        <%= button_to "☆", bookmarks_path(media_id: item["id"], title: title, kind: (is_tv ? "tv" : "movie")),
+              method: :post,
+              class: "text-white text-xl leading-none hover:text-red-500 bg-black/50 rounded px-1" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="mt-2 text-sm text-neutral-200 group-hover:text-white line-clamp-2">
+    <%= title %>
+  </div>
 </div>

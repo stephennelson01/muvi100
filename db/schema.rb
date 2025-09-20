@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_17_125620) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_20_200858) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -24,7 +24,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_17_125620) do
     t.string "unique_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "tmdb_id", null: false
     t.index ["unique_key"], name: "index_bookmarks_on_unique_key"
+    t.index ["user_id", "tmdb_id", "media_type"], name: "index_bookmarks_on_user_tmdb_and_type", unique: true
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
 

@@ -1,20 +1,75 @@
+<% title = @show["name"] %>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- Poster -->
   <div>
     <% if @show["poster_path"] %>
-      <img src="https://image.tmdb.org/t/p/w500<%= @show["poster_path"] %>"
-           class="rounded-lg shadow">
+      <img src="https://image.tmdb.org/t/p/w500<%= @show["poster_path"] %>" alt="<%= title %>" class="rounded-lg shadow">
     <% end %>
   </div>
+
   <div class="md:col-span-2">
-    <h1 class="text-3xl font-bold mb-2"><%= @show["name"] %></h1>
-    <p class="text-neutral-400 mb-4">First air: <%= @show["first_air_date"]&.first(4) %> • Seasons: <%= @show["number_of_seasons"] %></p>
-    <p class="mb-4"><%= @show["overview"] %></p>
+    <h1 class="text-3xl font-extrabold mb-2"><%= title %></h1>
+    <p class="mb-4 text-neutral-300"><%= @show["first_air_date"]&.first(4) %> — <%= @show["number_of_seasons"] %> seasons</p>
+    <p class="mb-6 text-neutral-200"><%= @show["overview"] %></p>
 
     <% if @trailer %>
-      <h2 class="text-xl font-semibold mb-2">Trailer</h2>
-      <iframe class="w-full aspect-video rounded-lg"
-              src="https://www.youtube.com/embed/<%= @trailer["key"] %>"
-              allowfullscreen></iframe>
+      <h2 class="text-xl font-bold mb-2">Watch Trailer</h2>
+      <div class="rounded-lg overflow-hidden border border-neutral-800 mb-6">
+        <iframe class="w-full aspect-video"
+                src="https://www.youtube.com/embed/<%= @trailer["key"] %>"
+                allowfullscreen></iframe>
+      </div>
+    <% end %>
+
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-xl font-bold">Episodes</h2>
+      <% if @seasons.any? %>
+        <%= form_with url: tv_path(@show["id"]), method: :get, local: true, class: "text-sm" do %>
+          <label for="season" class="mr-2 text-neutral-300">Season</label>
+          <select id="season" name="season"
+                  class="bg-neutral-800 border border-neutral-700 rounded px-2 py-1 text-neutral-100"
+                  onchange="this.form.submit()">
+            <% @seasons.each do |s| %>
+              <option value="<%= s["season_number"] %>" <%= "selected" if s["season_number"] == @season_number %>>
+                S<%= s["season_number"] %> — <%= s["episode_count"] %> eps
+              </option>
+            <% end %>
+          </select>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% if @season && @season["episodes"] %>
+      <div class="space-y-3">
+        <% @season["episodes"].each do |e| %>
+          <div class="p-3 rounded-lg border border-neutral-800 bg-neutral-800/30">
+            <div class="font-semibold">E<%= e["episode_number"] %>: <%= e["name"] %></div>
+            <% if e["air_date"].present? %><div class="text-xs text-neutral-400">Air: <%= e["air_date"] %></div><% end %>
+            <% if e["overview"].present? %><div class="text-sm text-neutral-300 mt-1"><%= e["overview"] %></div><% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @cast.present? %>
+      <h2 class="text-xl font-bold mt-8 mb-3">Cast</h2>
+      <div class="flex gap-4 overflow-x-auto pb-2">
+        <% @cast.first(12).each do |c| %>
+          <div class="w-28 shrink-0 text-center">
+            <div class="w-24 h-24 mx-auto rounded-full overflow-hidden bg-neutral-800 ring-1 ring-white/10">
+              <% if c["profile_path"] %>
+                <img src="https://image.tmdb.org/t/p/w185<%= c["profile_path"] %>" alt="<%= c["name"] %>" class="w-full h-full object-cover">
+              <% else %>
+                <div class="w-full h-full grid place-items-center text-xs text-neutral-500">No Photo</div>
+              <% end %>
+            </div>
+            <div class="mt-2 text-sm font-medium"><%= c["name"] %></div>
+            <% if c["roles"]&.first&.dig("character").present? %>
+              <div class="text-xs text-neutral-400"><%= c["roles"].first["character"] %></div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </div>

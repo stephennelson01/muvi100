@@ -1,3 +1,4 @@
+# app/controllers/bookmarks_controller.rb
 class BookmarksController < ApplicationController
   before_action :authenticate_user!
 
@@ -6,33 +7,25 @@ class BookmarksController < ApplicationController
   end
 
   def create
-    attrs = {
-      user: current_user,
-      media_type: params[:media_type],
-      media_id: params[:media_id],
-      title: params[:title],
-      poster_path: params[:poster_path],
-      overview: params[:overview]
-    }
-    @bookmark = current_user.bookmarks.where(media_type: attrs[:media_type], media_id: attrs[:media_id]).first_or_initialize
-    @bookmark.assign_attributes(attrs)
+    b = current_user.bookmarks.find_or_initialize_by(
+      tmdb_id: params[:tmdb_id],
+      media_type: params[:media_type] # "movie" or "tv"
+    )
 
-    if @bookmark.save
-      respond_to do |f|
-        f.turbo_stream
-        f.html { redirect_back fallback_location: bookmarks_path, notice: "Bookmarked!" }
-      end
+    # Optional cached fields
+    b.title = params[:title] if params[:title].present?
+    b.poster_path = params[:poster_path] if params[:poster_path].present?
+
+    if b.save
+      redirect_back fallback_location: root_path, notice: "Bookmarked!"
     else
-      head :unprocessable_entity
+      redirect_back fallback_location: root_path, alert: b.errors.full_messages.to_sentence
     end
   end
 
   def destroy
-    @bookmark = current_user.bookmarks.find(params[:id])
-    @bookmark.destroy
-    respond_to do |f|
-      f.turbo_stream
-      f.html { redirect_back fallback_location: bookmarks_path, notice: "Removed from bookmarks." }
-    end
+    b = current_user.bookmarks.find(params[:id])
+    b.destroy
+    redirect_back fallback_location: bookmarks_path, notice: "Removed."
   end
 end

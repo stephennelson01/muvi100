@@ -1,16 +1,16 @@
+# app/helpers/navigation_helper.rb
 module NavigationHelper
-  # Usage:
-  #   <%= nav_link_to "Home", root_path %>
-  #   <%= nav_link_to "Movies", movies_path, class: "extra-classes" %>
-  #
-  def nav_link_to(name, path, active: nil, **options)
-    active = current_page?(path) if active.nil?
+  # Red underline on hover; persistent red underline + red text when active
+  def nav_link_to(label, path)
+    active = current_page?(path)
 
-    base = "px-3 py-2 rounded-md text-sm text-neutral-200 hover:text-white hover:bg-white/5"
-    active_classes = " bg-white/10 text-white"
+    base = "nav-tab border-b-2"
+    cls  = if active
+      "#{base} nav-tab--active"
+    else
+      "#{base}"
+    end
 
-    computed_class = [base, (active ? active_classes : nil), options.delete(:class)].compact.join(" ")
-
-    link_to(name, path, **options.merge(class: computed_class))
+    link_to label, path, class: cls
   end
 end

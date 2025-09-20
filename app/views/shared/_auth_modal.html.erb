@@ -1,32 +1,48 @@
+<%# Provide Devise locals because we’re rendering outside Devise controllers %>
+<% resource       = User.new %>
+<% resource_name  = :user %>
+<% devise_mapping = Devise.mappings[:user] %>
+
+<!-- The modal element is a TARGET of the body-scoped `modal` controller -->
 <div id="auth_modal"
      data-modal-target="container"
-     class="hidden fixed inset-0 z-50 items-center justify-center">
-
-  <!-- Backdrop -->
-  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"
-       data-action="click->modal#close"></div>
-
-  <!-- Modal Panel -->
-  <div class="relative mx-auto w-[min(92vw,480px)] rounded-2xl bg-white text-neutral-900 shadow-2xl">
-    <!-- Close button -->
-    <button class="absolute top-3 right-3 text-2xl leading-none px-2 text-neutral-500 hover:text-neutral-800"
-            data-action="click->modal#close">×</button>
-
-    <!-- Title (Stimulus expects this) -->
-    <div class="px-5 py-4 border-b">
-      <h3 class="text-lg font-bold" data-modal-target="title">Sign Up</h3>
+     class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+  <div class="bg-neutral-900 rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+    <!-- Header tabs -->
+    <div class="flex border-b border-neutral-800">
+      <button data-action="click->modal#showSignIn"
+              class="flex-1 py-3 text-center font-semibold text-neutral-300 hover:text-white"
+              data-modal-target="signInTab">
+        Sign In
+      </button>
+      <button data-action="click->modal#showSignUp"
+              class="flex-1 py-3 text-center font-semibold text-neutral-300 hover:text-white"
+              data-modal-target="signUpTab">
+        Sign Up
+      </button>
     </div>
 
-    <!-- Turbo Frame for Devise form -->
-    <div class="p-5 space-y-3">
-      <turbo-frame id="auth_frame" data-modal-target="frame"></turbo-frame>
+    <!-- Body -->
+    <div class="p-6">
+      <!-- Sign In -->
+      <turbo-frame id="auth_sign_in" data-modal-target="signInFrame">
+        <%= render template: "devise/sessions/new",
+                   locals: { resource: resource, resource_name: resource_name, devise_mapping: devise_mapping } %>
+      </turbo-frame>
 
-      <!-- Toggle -->
-      <div class="text-sm text-center">
-        <span data-modal-target="toggleText">Already have an account?</span>
-        <a href="#" class="text-red-600 font-medium"
-           data-action="click->modal#toggle">Sign In</a>
-      </div>
+      <!-- Sign Up -->
+      <turbo-frame id="auth_sign_up" data-modal-target="signUpFrame" class="hidden">
+        <%= render template: "devise/registrations/new",
+                   locals: { resource: resource, resource_name: resource_name, devise_mapping: devise_mapping } %>
+      </turbo-frame>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-3 text-right border-t border-neutral-800">
+      <button data-action="click->modal#close"
+              class="px-4 py-2 rounded bg-neutral-700 hover:bg-neutral-600 text-white font-medium">
+        Close
+      </button>
     </div>
   </div>
 </div>
