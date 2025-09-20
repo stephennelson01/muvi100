@@ -1,48 +1,106 @@
-<%# Provide Devise locals because we’re rendering outside Devise controllers %>
-<% resource       = User.new %>
-<% resource_name  = :user %>
-<% devise_mapping = Devise.mappings[:user] %>
+<div
+  data-modal-target="overlay"
+  class="fixed inset-0 z-50 opacity-0 pointer-events-none transition-opacity">
 
-<!-- The modal element is a TARGET of the body-scoped `modal` controller -->
-<div id="auth_modal"
-     data-modal-target="container"
-     class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
-  <div class="bg-neutral-900 rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+  <!-- Backdrop -->
+  <div class="absolute inset-0 bg-black/60" data-action="click->modal#close"></div>
+
+  <!-- Dialog -->
+  <div class="relative z-10 max-w-md mx-auto mt-24 rounded-xl border border-neutral-700 bg-neutral-800 p-4 shadow-2xl">
     <!-- Header tabs -->
-    <div class="flex border-b border-neutral-800">
-      <button data-action="click->modal#showSignIn"
-              class="flex-1 py-3 text-center font-semibold text-neutral-300 hover:text-white"
-              data-modal-target="signInTab">
-        Sign In
-      </button>
-      <button data-action="click->modal#showSignUp"
-              class="flex-1 py-3 text-center font-semibold text-neutral-300 hover:text-white"
-              data-modal-target="signUpTab">
-        Sign Up
-      </button>
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex gap-2">
+        <button
+          class="px-3 py-1.5 rounded-md text-sm font-semibold text-white bg-white/10"
+          data-modal-target="tabSignIn"
+          data-action="click->modal#showSignIn">
+          Sign In
+        </button>
+        <button
+          class="px-3 py-1.5 rounded-md text-sm font-semibold text-neutral-200 hover:text-white hover:bg-white/10"
+          data-modal-target="tabSignUp"
+          data-action="click->modal#showSignUp">
+          Sign Up
+        </button>
+      </div>
+      <button class="text-neutral-300 hover:text-white" aria-label="Close" data-action="click->modal#close">✕</button>
     </div>
 
-    <!-- Body -->
-    <div class="p-6">
-      <!-- Sign In -->
-      <turbo-frame id="auth_sign_in" data-modal-target="signInFrame">
-        <%= render template: "devise/sessions/new",
-                   locals: { resource: resource, resource_name: resource_name, devise_mapping: devise_mapping } %>
-      </turbo-frame>
+    <!-- Sign In pane -->
+    <div data-modal-target="paneSignIn">
+      <h2 class="text-xl font-bold mb-3">Welcome back</h2>
 
-      <!-- Sign Up -->
-      <turbo-frame id="auth_sign_up" data-modal-target="signUpFrame" class="hidden">
-        <%= render template: "devise/registrations/new",
-                   locals: { resource: resource, resource_name: resource_name, devise_mapping: devise_mapping } %>
-      </turbo-frame>
+      <%= form_with url: user_session_path, scope: :user, method: :post, class: "space-y-3" do |f| %>
+        <div>
+          <label class="auth-label" for="user_email">Email</label>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "auth-input" %>
+        </div>
+
+        <div>
+          <label class="auth-label" for="user_password">Password</label>
+          <%= f.password_field :password, autocomplete: "current-password", class: "auth-input" %>
+        </div>
+
+        <% if Devise.mappings[:user].rememberable? %>
+          <div class="auth-remember">
+            <%= f.check_box :remember_me, id: "remember_me_modal" %>
+            <label for="remember_me_modal">Remember me</label>
+          </div>
+        <% end %>
+
+        <%= f.submit "Sign In", class: "btn btn-red w-full" %>
+      <% end %>
+
+      <div class="divider"><span>or</span></div>
+
+      <%= link_to user_google_oauth2_omniauth_authorize_path,
+                  class: "btn btn-white w-full inline-flex items-center justify-center gap-2" do %>
+        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="" class="google-icon">
+        Continue with Google
+      <% end %>
+
+      <p class="auth-foot mt-3">
+        New here?
+        <a href="#" data-action="click->modal#showSignUp">Create an account</a>
+      </p>
     </div>
 
-    <!-- Footer -->
-    <div class="p-3 text-right border-t border-neutral-800">
-      <button data-action="click->modal#close"
-              class="px-4 py-2 rounded bg-neutral-700 hover:bg-neutral-600 text-white font-medium">
-        Close
-      </button>
+    <!-- Sign Up pane -->
+    <div class="hidden" data-modal-target="paneSignUp">
+      <h2 class="text-xl font-bold mb-3">Create your account</h2>
+
+      <%= form_with url: user_registration_path, scope: :user, method: :post, class: "space-y-3" do |f| %>
+        <div>
+          <label class="auth-label" for="signup_email">Email</label>
+          <%= f.email_field :email, id: "signup_email", autocomplete: "email", class: "auth-input" %>
+        </div>
+        <div>
+          <label class="auth-label" for="signup_password">Password</label>
+          <%= f.password_field :password, id: "signup_password", autocomplete: "new-password", class: "auth-input" %>
+          <% if defined?(@minimum_password_length) && @minimum_password_length.present? %>
+            <small class="text-neutral-400"><%= @minimum_password_length %> characters minimum</small>
+          <% end %>
+        </div>
+        <div>
+          <label class="auth-label" for="signup_password_confirmation">Confirm password</label>
+          <%= f.password_field :password_confirmation, id: "signup_password_confirmation", autocomplete: "new-password", class: "auth-input" %>
+        </div>
+
+        <%= f.submit "Create Account", class: "btn btn-red w-full" %>
+      <% end %>
+
+      <div class="divider"><span>or</span></div>
+
+      <%= link_to user_google_oauth2_omniauth_authorize_path,
+                  class: "btn btn-white w-full inline-flex items-center justify-center gap-2" do %>
+        <img src="https://www.gstatic.com/images/branding/product/1x/gsa_64dp.png" alt="" class="google-icon">
+        Continue with Google
+      <% end %>
+
+      <p class="auth-foot mt-3">
+        Already have an account?
+        <a href="#" data-action="click->modal#showSignIn">Sign in</a>
+      </p>
     </div>
   </div>
 </div>

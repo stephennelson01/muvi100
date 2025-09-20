@@ -14,21 +14,25 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body class="bg-neutral-900 text-neutral-100">
+  <!-- Mount modal controller here so header buttons can trigger it -->
+  <body class="bg-neutral-900 text-neutral-100" data-controller="modal">
     <!-- Header -->
-    <header class="navbar">
+    <header class="sticky top-0 z-40 bg-neutral-900/80 backdrop-blur-md border-b border-neutral-800 shadow-[0_1px_0_0_rgba(255,255,255,0.04)]">
       <div class="max-w-7xl mx-auto px-4">
         <div class="h-14 flex items-center justify-between gap-3">
           <!-- Brand -->
-          <%= link_to root_path, class: "brand", "aria-label": "muvi100 home" do %>
-            <span class="brand-badge">M</span>
-            <span class="brand-text">
-              MUVI <span class="brand-100">100</span>
+          <%= link_to root_path, class: "flex items-center gap-2 group", "aria-label": "muvi100 home" do %>
+            <span class="inline-grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-red-500 to-amber-400 ring-1 ring-white/10">
+              <span class="font-black text-white tracking-tight">M</span>
+            </span>
+            <span class="font-extrabold tracking-wide text-white text-lg leading-none">
+              MUVI
+              <span class="bg-gradient-to-r from-red-500 to-amber-300 bg-clip-text text-transparent">100</span>
             </span>
           <% end %>
 
           <!-- Tabs -->
-          <nav class="nav-tabs">
+          <nav class="hidden md:flex items-center gap-1">
             <% tabs = [
               ["Home",      root_path],
               ["Trending",  trending_path],
@@ -38,16 +42,15 @@
               ["Anime",     anime_path]
             ] %>
             <% tabs.each do |label, path| %>
-              <% active = current_page?(path) %>
               <%= link_to label, path,
-                  class: "nav-tab #{'nav-tab--active' if active}",
-                  data: { active: active } %>
+                  class: "px-3 py-2 rounded-md text-sm font-medium transition #{ current_page?(path) ? 'bg-white/10 text-white underline underline-offset-4 decoration-red-500' : 'text-neutral-200 hover:text-red-500 hover:underline hover:underline-offset-4 hover:decoration-red-500' }" %>
             <% end %>
           </nav>
 
           <!-- Search -->
-          <%= form_with url: search_path, method: :get, class: "nav-search" do %>
-            <input name="q" placeholder="Search movies & TV…" class="nav-input" />
+          <%= form_with url: search_path, method: :get, class: "hidden sm:block" do %>
+            <input name="q" placeholder="Search movies & TV…"
+                   class="w-64 bg-neutral-800 text-neutral-100 placeholder-neutral-400 px-3 py-2 rounded-md border border-neutral-700 focus:outline-none focus:ring-1 focus:ring-white/40" />
           <% end %>
 
           <!-- Auth -->
@@ -55,14 +58,27 @@
             <% if user_signed_in? %>
               <!-- White Bookmarks button -->
               <%= link_to "Bookmarks", bookmarks_path,
-                    class: "btn btn-white" %>
+                    class: "text-sm bg-white text-neutral-900 px-3 py-1.5 rounded-md font-medium hover:bg-neutral-100" %>
+
               <!-- Red Sign out button -->
               <%= button_to "Sign out", destroy_user_session_path,
                     method: :delete,
-                    class: "btn btn-red" %>
+                    class: "text-sm bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-md font-medium" %>
             <% else %>
-              <%= link_to "Sign In", new_user_session_path,  class: "btn btn-grey" %>
-              <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-red" %>
+              <!-- These now call the body-mounted modal controller -->
+              <button
+                type="button"
+                class="text-sm bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md font-medium"
+                data-action="click->modal#openSignIn">
+                Sign In
+              </button>
+
+              <button
+                type="button"
+                class="text-sm bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-md font-medium"
+                data-action="click->modal#openSignUp">
+                Sign Up
+              </button>
             <% end %>
           </div>
         </div>
@@ -77,11 +93,11 @@
       </div>
     </main>
 
-    <!-- Back to top (optional — leave hidden unless you wire controller) -->
-    <button class="fixed bottom-5 right-5 h-11 w-11 rounded-full bg-blue-600 text-white shadow-lg hidden">↑</button>
-
     <footer class="border-t border-neutral-800 py-6 text-center text-sm text-neutral-400">
       © <%= Time.current.year %> muvi100
     </footer>
+
+    <!-- Auth Modal overlay lives once at the bottom of <body> -->
+    <%= render "shared/auth_modal" unless user_signed_in? %>
   </body>
 </html>

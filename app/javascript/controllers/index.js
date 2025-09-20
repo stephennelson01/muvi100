@@ -1,10 +1,14 @@
 import { application } from "./application"
 
-// Auto-register all controllers in this directory (default stimulus-rails setup)
-import { definitionsFromContext } from "@hotwired/stimulus-loading"
-const context = require.context(".", true, /_controller\.js$/)
-application.load(definitionsFromContext(context))
+// Importmap-friendly helpers:
+import { eagerLoadControllersFrom } from "@hotwired/stimulus-loading"
 
-// Explicitly register our infinite scroll (in case autoload misses it)
+// Auto-load everything in this directory:
+eagerLoadControllersFrom("controllers", application)
+
+// Explicit registrations (belt & suspenders)
+import ModalController from "./modal_controller"
+application.register("modal", ModalController)
+
 import InfiniteScrollController from "./infinite_scroll_controller"
 application.register("infinite-scroll", InfiniteScrollController)
