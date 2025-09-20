@@ -14,7 +14,7 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <!-- Mount modal controller here so header buttons can trigger it -->
+  <!-- Mount the modal controller HERE so header buttons can reach it -->
   <body class="bg-neutral-900 text-neutral-100" data-controller="modal">
     <!-- Header -->
     <header class="sticky top-0 z-40 bg-neutral-900/80 backdrop-blur-md border-b border-neutral-800 shadow-[0_1px_0_0_rgba(255,255,255,0.04)]">
@@ -65,7 +65,7 @@
                     method: :delete,
                     class: "text-sm bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-md font-medium" %>
             <% else %>
-              <!-- These now call the body-mounted modal controller -->
+              <!-- Open modal buttons (they can now reach the body-mounted controller) -->
               <button
                 type="button"
                 class="text-sm bg-neutral-700 hover:bg-neutral-600 text-white px-3 py-1.5 rounded-md font-medium"
@@ -97,7 +97,7 @@
       © <%= Time.current.year %> muvi100
     </footer>
 
-    <!-- Auth Modal overlay lives once at the bottom of <body> -->
+    <!-- Auth Modal (NO data-controller here, only targets) -->
     <%= render "shared/auth_modal" unless user_signed_in? %>
   </body>
 </html>

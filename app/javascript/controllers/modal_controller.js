@@ -2,7 +2,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["paneSignIn", "paneSignUp", "tabSignIn", "tabSignUp"]
+  static targets = ["overlay", "paneSignIn", "paneSignUp", "tabSignIn", "tabSignUp"]
 
   connect() {
     this.isOpen = false
@@ -18,14 +18,14 @@ export default class extends Controller {
 
   open() {
     if (this.isOpen) return
-    this.element.classList.add("!opacity-100", "!pointer-events-auto")
+    this.overlayTarget.classList.add("!opacity-100", "!pointer-events-auto")
     document.body.classList.add("overflow-hidden")
     this.isOpen = true
   }
 
   close = (e) => {
     e?.preventDefault()
-    this.element.classList.remove("!opacity-100", "!pointer-events-auto")
+    this.overlayTarget.classList.remove("!opacity-100", "!pointer-events-auto")
     document.body.classList.remove("overflow-hidden")
     this.isOpen = false
   }
@@ -37,7 +37,7 @@ export default class extends Controller {
     this.paneSignInTarget.classList.toggle("hidden", !signInActive)
     this.paneSignUpTarget.classList.toggle("hidden", signInActive)
 
-    // tabs
+    // tabs styles
     this.tabSignInTarget.classList.toggle("bg-white/10", signInActive)
     this.tabSignInTarget.classList.toggle("text-white", signInActive)
     this.tabSignInTarget.classList.toggle("text-neutral-200", !signInActive)
