@@ -1,16 +1,20 @@
 class BrowseController < ApplicationController
   def home
-    @trending = Tmdb.trending["results"].first(18)
+    # Pull trending and paginate locally for the grid; hero uses first slides separately in view if you want
+    res = Tmdb.trending # expected to return {"results" => [...]}
+    all = Array(res["results"])
+
+    @page = (params[:page] || 1).to_i
+    per  = 18
+    offset = (@page - 1) * per
+
+    @trending = all.slice(offset, per) || []
+    @next_url = (offset + per < all.size) ? root_path(page: @page + 1) : nil
   end
 
   def trending
-    @period = params[:period].presence_in(%w[day week]) || "day"
-    page    = params[:page].to_i
-    page    = 1 if page <= 0
-    data    = Tmdb.get("/trending/all/#{@period}", page: page)
-    @results = Array(data["results"])
-    @page    = page
-    @has_more = @page < (data["total_pages"].to_i.nonzero? || 1000)
+    @period  = (params[:period] == "day" ? "day" : "week")
+    @results = Tmdb.get("/trending/all/#{@period}")["results"]
   end
 
   def genres
@@ -18,27 +22,16 @@ class BrowseController < ApplicationController
               Tmdb.get("/genre/tv/list")["genres"]
     @genres.uniq! { |g| g["id"] }
 
-    page = params[:page].to_i
-    page = 1 if page <= 0
-
     if params[:with_genres].present?
-      data = Tmdb.get("/discover/movie",
-        with_genres: params[:with_genres],
-        sort_by: "popularity.desc",
-        page: page
-      )
-      @results = Array(data["results"])
-      @page    = page
-      @has_more = @page < (data["total_pages"].to_i.nonzero? || 1000)
+      @results = Tmdb.get("/discover/movie",
+                          with_genres: params[:with_genres],
+                          sort_by: "popularity.desc")["results"]
     else
       @results = []
-      @page = 1
-      @has_more = false
     end
   end
 
   def anime
-    # keep as-is (curated)
     movies = Tmdb.get("/discover/movie", with_genres: 16, sort_by: "popularity.desc")["results"]
     shows  = Tmdb.get("/discover/tv",    with_genres: 16, sort_by: "popularity.desc")["results"]
     @results = (movies + shows).sort_by { |r| -r.fetch("popularity", 0).to_f }.first(40)

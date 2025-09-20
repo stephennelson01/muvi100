@@ -29,12 +29,20 @@
 
           <!-- Tabs -->
           <nav class="nav-tabs">
-            <%= nav_link_to "Home",      root_path %>
-            <%= nav_link_to "Trending",  trending_path %>
-            <%= nav_link_to "Movies",    movies_path %>
-            <%= nav_link_to "TV Series", tv_index_path %>
-            <%= nav_link_to "Genres",    genres_path %>
-            <%= nav_link_to "Anime",     anime_path %>
+            <% tabs = [
+              ["Home",      root_path],
+              ["Trending",  trending_path],
+              ["Movies",    movies_path],
+              ["TV Series", tv_index_path],
+              ["Genres",    genres_path],
+              ["Anime",     anime_path]
+            ] %>
+            <% tabs.each do |label, path| %>
+              <% active = current_page?(path) %>
+              <%= link_to label, path,
+                  class: "nav-tab #{'nav-tab--active' if active}",
+                  data: { active: active } %>
+            <% end %>
           </nav>
 
           <!-- Search -->
@@ -48,14 +56,13 @@
               <!-- White Bookmarks button -->
               <%= link_to "Bookmarks", bookmarks_path,
                     class: "btn btn-white" %>
-
               <!-- Red Sign out button -->
               <%= button_to "Sign out", destroy_user_session_path,
-                    method: :delete, form: { data: { turbo: false } },
+                    method: :delete,
                     class: "btn btn-red" %>
             <% else %>
-              <%= link_to "Sign In", new_user_session_path,    class: "btn btn-grey" %>
-              <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-red"  %>
+              <%= link_to "Sign In", new_user_session_path,  class: "btn btn-grey" %>
+              <%= link_to "Sign Up", new_user_registration_path, class: "btn btn-red" %>
             <% end %>
           </div>
         </div>
@@ -70,10 +77,8 @@
       </div>
     </main>
 
-    <!-- Back to top -->
-    <button data-action="click->back-to-top#scroll"
-            class="fixed bottom-5 right-5 h-11 w-11 rounded-full bg-blue-600 text-white shadow-lg hidden"
-            data-back-to-top-target="button">↑</button>
+    <!-- Back to top (optional — leave hidden unless you wire controller) -->
+    <button class="fixed bottom-5 right-5 h-11 w-11 rounded-full bg-blue-600 text-white shadow-lg hidden">↑</button>
 
     <footer class="border-t border-neutral-800 py-6 text-center text-sm text-neutral-400">
       © <%= Time.current.year %> muvi100

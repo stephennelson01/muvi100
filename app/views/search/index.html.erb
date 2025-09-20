@@ -1,14 +1,18 @@
-<% q = params[:q].to_s.strip %>
+<h1 class="text-2xl font-bold mb-4">Search</h1>
 
-<h1 class="text-2xl font-bold mb-6">
-  Search Results
-  <% if q.present? %>
-    for "<%= q %>"
-  <% end %>
-</h1>
+<%= form_with url: search_path, method: :get, class: "mb-5" do %>
+  <input name="q" value="<%= @q %>" placeholder="Search movies & TV…"
+         class="w-full md:w-96 bg-neutral-800 text-neutral-100 placeholder-neutral-400 px-3 py-2 rounded-md border border-neutral-700 focus:outline-none focus:ring-1 focus:ring-white/40" />
+<% end %>
+
+<% if @q.present? %>
+  <p class="text-neutral-400 mb-4">Results for “<span class="text-neutral-200"><%= @q %></span>”</p>
+<% end %>
 
 <% if @results.present? %>
-  <%= render "shared/grid", collection: @results %>
-<% else %>
+  <%= render "shared/grid", collection: @results, page_id: "search-grid", next_url: @next_url %>
+<% elsif @q.present? %>
   <p class="text-neutral-400">No results found.</p>
+<% else %>
+  <p class="text-neutral-400">Try searching for a title, e.g., “Batman”.</p>
 <% end %>

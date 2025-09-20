@@ -1,15 +1,17 @@
-<!-- app/views/shared/_grid.html.erb -->
-<%# Safe defaults for locals %>
-<% collection = local_assigns[:collection] || [] %>
-<% page_id    = local_assigns[:page_id]    || "grid-#{SecureRandom.hex(4)}" %>
-<% next_url   = local_assigns[:next_url]   || nil %>
+<% page_id  ||= "grid" %>
+<% next_url ||= nil %>
 
 <div id="<%= page_id %>"
      class="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-     data-controller="<%= next_url.present? ? 'infinite-scroll' : nil %>"
-     data-next-url="<%= next_url %>">
+     data-controller="<%= next_url.present? ? 'infinite-scroll' : '' %>"
+     data-infinite-scroll-next-url-value="<%= next_url %>">
+  <% Array(collection).each do |item| %>
+    <div data-card>
+      <%= render "shared/media_card", item: item, current_user: current_user %>
+    </div>
+  <% end %>
 
-  <% collection.each do |item| %>
-    <%= render "shared/media_card", item: item, current_user: current_user %>
+  <% if next_url.present? %>
+    <div data-infinite-scroll-target="sentinel" data-next-url="<%= next_url %>"></div>
   <% end %>
 </div>
