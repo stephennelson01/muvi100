@@ -1,4 +1,3 @@
-// app/javascript/controllers/modal_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -8,11 +7,11 @@ export default class extends Controller {
     this.isOpen = false
   }
 
-  // Header buttons
+  // Header buttons (outside modal)
   openSignIn = () => { this.open(); this.showPane("signin") }
   openSignUp = () => { this.open(); this.showPane("signup") }
 
-  // Tabs inside modal
+  // Tabs (inside modal)
   showSignIn = (e) => { e?.preventDefault(); this.showPane("signin") }
   showSignUp  = (e) => { e?.preventDefault(); this.showPane("signup") }
 
@@ -33,11 +32,9 @@ export default class extends Controller {
   showPane(which) {
     const signInActive = which === "signin"
 
-    // panes
     this.paneSignInTarget.classList.toggle("hidden", !signInActive)
     this.paneSignUpTarget.classList.toggle("hidden", signInActive)
 
-    // tabs styles
     this.tabSignInTarget.classList.toggle("bg-white/10", signInActive)
     this.tabSignInTarget.classList.toggle("text-white", signInActive)
     this.tabSignInTarget.classList.toggle("text-neutral-200", !signInActive)
