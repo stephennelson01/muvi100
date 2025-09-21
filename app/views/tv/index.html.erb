@@ -1,2 +1,5 @@
-<h1 class="text-2xl font-bold mb-5 text-white">Popular TV Shows</h1>
-<%= render "shared/grid", collection: @results %>
+<h1 class="text-2xl font-bold mb-4">TV Series</h1>
+<%= render "shared/grid",
+           collection: Array(@results),
+           next_url: (defined?(@next_page_url) ? @next_page_url : nil),
+           page_id: "tv_grid" %>

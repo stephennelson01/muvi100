@@ -1,8 +1,13 @@
+/* Tailwind v4 entrypoint → compiles to app/assets/builds/application.css */
 @import "tailwindcss";
 
-/* Tell Tailwind where to scan for classes (v4 uses @source) */
+/* Tell Tailwind where to scan for classnames (v4 uses @source) */
 @source "../views";
 @source "../javascript";
 @source "../helpers";
 
-/* your custom CSS here if needed */
+/* Include your custom sheets so ONE link tag is enough */
+@import "../stylesheets/auth.css";
+@import "../stylesheets/site.css";
+
+/* put tiny overrides here if ever needed */

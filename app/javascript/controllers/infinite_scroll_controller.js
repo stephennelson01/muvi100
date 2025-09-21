@@ -1,40 +1,37 @@
+// app/javascript/controllers/infinite_scroll_controller.js
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static values = { nextUrl: String }
   static targets = ["sentinel"]
 
   connect() {
-    if (!("IntersectionObserver" in window)) return
+    if (!("IntersectionObserver" in window) || !this.hasSentinelTarget) return
     this.observer = new IntersectionObserver(entries => {
-      entries.forEach(e => { if (e.isIntersecting) this.loadMore() })
-    })
-    if (this.hasSentinelTarget) this.observer.observe(this.sentinelTarget)
+      entries.forEach(e => {
+        if (e.isIntersecting) this.loadMore()
+      })
+    }, { rootMargin: "1200px 0px" })
+    this.observer.observe(this.sentinelTarget)
+    this.loading = false
   }
 
   disconnect() {
-    if (this.observer) this.observer.disconnect()
+    if (this.observer && this.hasSentinelTarget) this.observer.unobserve(this.sentinelTarget)
   }
 
   async loadMore() {
-    if (!this.nextUrlValue) return
-    const url = this.nextUrlValue
-    this.nextUrlValue = "" // prevent double fetch
-
-    const res = await fetch(url, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-    const html = await res.text()
-
-    const temp = document.createElement("div")
-    temp.innerHTML = html
-
-    const cards = temp.querySelectorAll("[data-card]")
-    cards.forEach(c => this.element.appendChild(c))
-
-    const newNext = temp.querySelector("[data-next-url]")?.dataset.nextUrl
-    if (newNext) {
-      this.nextUrlValue = newNext
-    } else if (this.hasSentinelTarget) {
-      this.sentinelTarget.remove()
+    if (this.loading) return
+    const url = this.element.dataset.nextUrl
+    if (!url) return
+    this.loading = true
+    try {
+      const res = await fetch(url, { headers: { "Accept": "text/vnd.turbo-stream.html" }})
+      if (res.ok) {
+        const html = await res.text()
+        Turbo.renderStreamMessage(html)
+      }
+    } finally {
+      this.loading = false
     }
   }
 }

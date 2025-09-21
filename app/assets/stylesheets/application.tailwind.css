@@ -1,0 +1,10 @@
+/* Tailwind entrypoint (compiled to app/assets/builds/application.css) */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Pull in your custom sheets so we only include ONE link tag in layout */
+@import "auth.css";
+@import "site.css";
+
+/* You can keep/put any tiny overrides here if needed */

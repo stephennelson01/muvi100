@@ -1,8 +1,11 @@
+<%# app/views/browse/home.html.erb %>
+
 <% slides = Array(@trending)
   .select { |i| i["backdrop_path"].present? || i["poster_path"].present? }
   .first(6)
 %>
 
+<!-- HERO (Stimulus-powered: arrows + dots, smooth fade) -->
 <section class="relative">
   <% if slides.any? %>
     <div class="hero" data-controller="hero">
@@ -14,10 +17,12 @@
           class="hero-slide"
           data-hero-target="slide"
           style="background-image: url('https://image.tmdb.org/t/p/original<%= back %>')">
+          <!-- gradient overlay is in CSS (::after); keep caption above it -->
           <div class="hero-caption">
             <div>
               <h2 class="text-4xl md:text-5xl font-extrabold text-white drop-shadow mb-3"><%= title %></h2>
               <p class="text-neutral-200 max-w-2xl line-clamp-3"><%= item["overview"] %></p>
+
               <div class="mt-5 flex items-center gap-3">
                 <%= link_to "View Details",
                     (item["media_type"] == "tv" || item["first_air_date"].present? ? tv_path(item["id"]) : movie_path(item["id"])),
@@ -29,26 +34,45 @@
       <% end %>
 
       <!-- Arrows -->
-      <button type="button" aria-label="Previous slide"
-              data-action="click->hero#prev"
-              class="absolute left-3 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white grid place-items-center z-20">‹</button>
-      <button type="button" aria-label="Next slide"
-              data-action="click->hero#next"
-              class="absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white grid place-items-center z-20">›</button>
+      <button
+        type="button"
+        aria-label="Previous slide"
+        data-action="click->hero#prev"
+        class="absolute left-3 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white grid place-items-center z-20">
+        ‹
+      </button>
+
+      <button
+        type="button"
+        aria-label="Next slide"
+        data-action="click->hero#next"
+        class="absolute right-3 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-black/50 hover:bg-black/70 text-white grid place-items-center z-20">
+        ›
+      </button>
 
       <!-- Dots -->
       <div class="hero-dots" role="tablist" aria-label="Hero slides">
         <% slides.each_with_index do |_, i| %>
-          <button type="button" role="tab" aria-label="Go to slide <%= i + 1 %>"
-                  data-index="<%= i %>" data-hero-target="dot" data-action="click->hero#go"
-                  class="hero-dot"></button>
+          <button
+            type="button"
+            role="tab"
+            aria-label="Go to slide <%= i + 1 %>"
+            data-index="<%= i %>"
+            data-hero-target="dot"
+            data-action="click->hero#go"
+            class="hero-dot">
+          </button>
         <% end %>
       </div>
     </div>
   <% else %>
+    <!-- Fallback skeleton -->
     <div class="h-[36vh] md:h-[44vh] rounded-xl border border-neutral-800 bg-neutral-800/40 animate-pulse"></div>
   <% end %>
 </section>
 
+<!-- BELOW THE HERO: dense grid of trending -->
 <h3 class="mt-8 mb-4 text-xl font-bold">Trending Now</h3>
-<%= render "shared/grid", collection: Array(@trending).first(18) %>
+<%= render "shared/grid",
+           collection: Array(@trending).first(18),
+           next_url: nil %>
